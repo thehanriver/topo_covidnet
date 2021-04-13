@@ -10,7 +10,14 @@
 			fnndsc/pl-topologicalcopy,	\
 			fnndsc/pl-pdfgeneration,	\
 			jonocameron/pl-rank,		\
-			thehanriver/pl-demo
+			thehanriver/pl-demo		\
+			fnndsc/pl-lungct^AWS,		\
+			fnndsc/pl-med2img^AWS,		\
+			fnndsc/pl-covidnet^AWS,	\
+			fnndsc/pl-topologicalcopy^AWS,\
+			fnndsc/pl-pdfgeneration^AWS,	\
+			jonocameron/pl-rank^AWS,	\
+			thehanriver/pl-demo^AWS		
 "
 
 #
