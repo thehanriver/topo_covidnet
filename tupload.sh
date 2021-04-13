@@ -10,7 +10,7 @@
 			fnndsc/pl-topologicalcopy,	\
 			fnndsc/pl-pdfgeneration,	\
 			jonocameron/pl-rank,		\
-			thehanriver/pl-demo		\
+			thehanriver/pl-demo,		\
 			fnndsc/pl-lungct^my_hpc,	\
 			fnndsc/pl-med2img^my_hpc,	\
 			fnndsc/pl-covidnet^my_hpc,	\
