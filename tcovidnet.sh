@@ -48,10 +48,6 @@ declare -a a_WORKFLOWSPEC=(
                                 --previous_id=@prev_id"
 )
 
-    #"3*_n:4|
-    #fnndsc/pl-topologicalcopy:  ARGS;
-    #                            --previous_id=@prev_id;
-    #                            --plugininstances=@plinst"
 WORKFLOW=\
 '{
     "WARNING":  "THIS JSON STRUCTURE IS NOT USED!!!"
@@ -585,34 +581,29 @@ title -d 1 "Building and Scheduling workflow..."
     # postRun_report
 #windowBottom
 
-#title -d 1 "TS PLUGIN"
+title -d 1 "Collecting All Files from Covidnet.."
     # Post Node
-    #boxcenter "I'm working right now don't bother me"
-    #boxcenter ""
-    #windowBottom
-    #retState2=""
-    #waitForNodeState    "$CUBE" "finishedSuccessfully" $ID3 retState2
+    boxcenter "Collecting files to a sink node and"
+    boxcenter "ranking them in order of most severe to least"
+    boxcenter ""
+ 
     #\\\\\\\\\\\\\\\\\\
     # Core logic here ||
-
-    # plugin_run ":4" "a_WORKFLOWSPEC[@]" "$CUBE" ID4 $sleepAfterPluginRun \
-    #            "@prev_id=$ID3;@plinst=$combined" && id_check $ID4 
-    # digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":3;$ID3" ":4;$ID4" \
-    #             "a_WORKFLOWSPEC[@]"
 
     plugin_run ":4" "a_WORKFLOWSPEC[@]" "$CUBE" ID4 $sleepAfterPluginRun \
                 "@prev_id=$ID2;@plinst=$combined" && id_check $ID4 
     digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":2;$ID2" ":4;$ID4" \
                  "a_WORKFLOWSPEC[@]"
 
-    # Core logic here ||
     #///////////////////
 
-    echo $combined
     plugin_run ":5" "a_WORKFLOWSPEC[@]" "$CUBE" ID5 $sleepAfterPluginRun \
                 "@prev_id=$ID4" && id_check $ID5 
     digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":4;$ID4" ":5;$ID5" \
                  "a_WORKFLOWSPEC[@]"
+                 
+echo -en "\033[2A\033[2K"
+postRun_report
 windowBottom
 
 if (( b_respFail > 0 )) ; then exit 3 ; fi
