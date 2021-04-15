@@ -3,7 +3,6 @@
 
 source ./ffe.sh
 
-
 # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 # start feedflow specification section
 # |||||||||||||||||||||||||||||||||||||
@@ -26,26 +25,27 @@ declare -a a_WORKFLOWSPEC=(
                                 --previous_id=@prev_id"
 
     "1*_n:2*_n:l1|
-    thehanriver/pl-demo:         ARGS;
-				                --parInst=@prev_id;
+    thehanriver/pl-topo_covidnet:         ARGS;
+				 --parInst=@prev_id;
                                 --imagefile=sample.png;
                                 --title=COVIDNET;
                                 --previous_id=@prev_id"
 
-    "2*_n:3*_n:l1|
-    fnndsc/pl-pdfgeneration:    ARGS;
-                                --imagefile=sample.png;
-                                --patientId=@patientID;
-                                --title=report;
-                                --previous_id=@prev_id"
-
-    "2*_n:4|
+    "2*_n:3|
     fnndsc/pl-topologicalcopy:  ARGS;
                                 --previous_id=@prev_id;
                                 --plugininstances=@plinst"
-    "4:5|
+    "3:4|
     jonocameron/pl-rank:        ARGS;
                                 --previous_id=@prev_id"
+                                
+    "4:5*_n:l1|
+    thehanriver/pl-tpdf:    ARGS;
+                                --imagefile=sample.png;
+                                --patientId=@patientID;
+                                --title=report;
+                                --previous_id=@prev_id;
+                                --dir=@dir"
 )
 
 WORKFLOW=\
@@ -140,20 +140,28 @@ DESC
 
   'covidnet.sh' posts a workflow based off COVID-NET to CUBE:
 
-                                   ███:0          pl-lungct
+                                   ███:0                  pl-lungct
                                  __/│\__
                               _ / / | \ \_
-                             /   /  │  \.. \
-                            ↓   ↓   ↓   ↓   ↓
-                           ███ ███ ███ ███ ███ :1  pl-med2img
+                             /   /  │  \  \
+                                          ↓    ↓  ↓   ↓   ↓
+                           ███ ███ ███ ███ ███ :1         pl-med2img
                             │   │   │   │   │
                             │   │   │   │   │
-                            ↓   ↓   ↓   ↓   ↓
-                           ███ ███ ███ ███ ███ :2  pl-covidnet
+                                          ↓   ↓    ↓   ↓   ↓
+                           ███ ███ ███ ███ ███ :2         pl-topo_covidnet
                             │   │   │   │   │
-                            │   │   │   │   │
-                            ↓   ↓   ↓   ↓   ↓
-                           ███ ███ ███ ███ ███ :3  pl-pdfgeneration
+                            \   |   |   |   |
+                             ---------------|
+                                                                  ↓
+                                           ███ :3         pl-topologicalcopy
+                                                                  ↓
+                                           ███ :4         pl-rank
+                                         __/│\__
+                                      _ / / | \ \_
+                                     /   /  │  \  \
+                                                      ↓    ↓  ↓   ↓   ↓
+                                   ███ ███ ███ ███ ███ :5 pl-tpdf
 
     The FS plugin, ``pl-lungct``, generates an output directory containing
     several candidate images. This workflow will process each of those
@@ -518,13 +526,9 @@ title -d 1 "Building and Scheduling workflow..."
         digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":1;$ID1" ":2;$ID2" \
                     "a_WORKFLOWSPEC[@]"
 
-        plugin_run  ":3" "a_WORKFLOWSPEC[@]" "$CUBE" ID3 $sleepAfterPluginRun \
-                    "@prev_id=$ID2;@patientID=$ID1-12345" && id_check $ID3
-        digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":2;$ID2" ":3;$ID3" \
-                    "a_WORKFLOWSPEC[@]"
+
 	combined="${combined}${combined:+,}$ID2"
-	 # DISREGARD
-	 # combined="${combined}${combined:+,}$ID3"
+	
         if (( b_waitOnBranchFinish )) ; then
             waitForNodeState    "$CUBE" "finishedSuccessfully" $ID3 retState
         fi
@@ -573,39 +577,63 @@ title -d 1 "Building and Scheduling workflow..."
         fi
 
     done
-    #combined="${combined}${combined:+,}$ID2"
 
-
-
-    # echo -en "\033[2A\033[2K"
-    # postRun_report
-#windowBottom
-
-title -d 1 "Collecting All Files from Covidnet.."
-    # Post Node
-    boxcenter "Collecting files to a sink node and"
-    boxcenter "ranking them in order of most severe to least"
-    boxcenter ""
- 
-    #\\\\\\\\\\\\\\\\\\
-    # Core logic here ||
-
-    plugin_run ":4" "a_WORKFLOWSPEC[@]" "$CUBE" ID4 $sleepAfterPluginRun \
-                "@prev_id=$ID2;@plinst=$combined" && id_check $ID4 
-    digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":2;$ID2" ":4;$ID4" \
-                 "a_WORKFLOWSPEC[@]"
-
-    #///////////////////
-
-    plugin_run ":5" "a_WORKFLOWSPEC[@]" "$CUBE" ID5 $sleepAfterPluginRun \
-                "@prev_id=$ID4" && id_check $ID5 
-    digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":4;$ID4" ":5;$ID5" \
-                 "a_WORKFLOWSPEC[@]"
-                 
-echo -en "\033[2A\033[2K"
-postRun_report
 windowBottom
 
+title -d 1 "Collecting outputs from Covidnet"
+    # Post Node
+    windowBottom
+    # This section collects outputs from covidnets	
+    #\\\\\\\\\\\\\\\\\\\
+    # Core logic here ||
+    plugin_run ":3" "a_WORKFLOWSPEC[@]" "$CUBE" ID3 $sleepAfterPluginRun \
+                "@prev_id=$ID2;@plinst=$combined" && id_check $ID3 
+    digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":2;$ID2" ":3;$ID3" \
+                 "a_WORKFLOWSPEC[@]"
+    #                 ||
+    #///////////////////
+
+
+title -d 1 "Ranking patients"
+    # Post Node
+    windowBottom
+    
+    plugin_run ":4" "a_WORKFLOWSPEC[@]" "$CUBE" ID4 $sleepAfterPluginRun \
+                "@prev_id=$ID3" && id_check $ID4 
+    digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":3;$ID3" ":4;$ID4" \
+                 "a_WORKFLOWSPEC[@]"
+    # Gets output from ranking plugin             
+    RANKID=$ID4   
+    filesInRank=""
+    regFiles=""
+    retState1=""
+    waitForNodeState    "$CUBE" "finishedSuccessfully" $RANKID retState1
+    dataInNode_get      fname "$CUBE"  $RANKID filesInRank
+    # removes the first and last of the data
+    # (first is result.json and last is output.meta.json
+    
+    regFiles=$( echo "$filesInRank"         |\
+                awk -F \/ '{print $9}'      )
+              
+    read -a a_Rank <<< $(echo $regFiles)
+    unset a_Rank[0]
+    unset a_Rank[-1]
+    
+    # remove any duplicate elements
+    read -a a_Dir <<< $(echo "${a_Rank[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+ for rank in "${a_Dir[@]}" ; do
+ 	
+        plugin_run  ":5" "a_WORKFLOWSPEC[@]" "$CUBE" ID5 $sleepAfterPluginRun \
+                    "@prev_id=$ID4;@patientID=$ID1-12345;@dir=$rank" && id_check $ID5
+        digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":4;$ID4" ":5;$ID5" \
+                    "a_WORKFLOWSPEC[@]"
+        
+ done 
+ 
+ echo -en "\033[2A\033[2K"
+ postRun_report
+	
 if (( b_respFail > 0 )) ; then exit 3 ; fi
 
 if (( b_graphviz )) ; then

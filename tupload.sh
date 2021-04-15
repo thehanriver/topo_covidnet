@@ -10,14 +10,14 @@
 			fnndsc/pl-topologicalcopy,	\
 			fnndsc/pl-pdfgeneration,	\
 			jonocameron/pl-rank,		\
-			thehanriver/pl-demo,		\
+			thehanriver/pl-topo_covidnet,	\
 			fnndsc/pl-lungct^my_hpc,	\
 			fnndsc/pl-med2img^my_hpc,	\
 			fnndsc/pl-covidnet^my_hpc,	\
 			fnndsc/pl-topologicalcopy^my_hpc,\
 			fnndsc/pl-pdfgeneration^my_hpc,\
 			jonocameron/pl-rank^my_hpc,	\
-			thehanriver/pl-demo^my_hpc		
+			thehanriver/pl-topo_covidnet^my_hpc		
 "
 
 #
