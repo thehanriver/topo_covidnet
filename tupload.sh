@@ -11,13 +11,16 @@
 			fnndsc/pl-pdfgeneration,	\
 			jonocameron/pl-rank,		\
 			thehanriver/pl-topo_covidnet,	\
+			thehanriver/pl-tpdf,		\
+			thehanriver/pl-tpdf^my_hpc,	\
 			fnndsc/pl-lungct^my_hpc,	\
 			fnndsc/pl-med2img^my_hpc,	\
 			fnndsc/pl-covidnet^my_hpc,	\
 			fnndsc/pl-topologicalcopy^my_hpc,\
 			fnndsc/pl-pdfgeneration^my_hpc,\
 			jonocameron/pl-rank^my_hpc,	\
-			thehanriver/pl-topo_covidnet^my_hpc		
+			thehanriver/pl-topo_covidnet^my_hpc
+					
 "
 
 #
