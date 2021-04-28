@@ -19,7 +19,8 @@
 			fnndsc/pl-topologicalcopy^my_hpc,\
 			fnndsc/pl-pdfgeneration^my_hpc,\
 			jonocameron/pl-rank^my_hpc,	\
-			thehanriver/pl-topo_covidnet^my_hpc
+			thehanriver/pl-topo_covidnet^my_hpc, \
+			jonocameron/pl-covidnet
 					
 "
 

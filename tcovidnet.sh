@@ -25,8 +25,8 @@ declare -a a_WORKFLOWSPEC=(
                                 --previous_id=@prev_id"
 
     "1*_n:2*_n:l1|
-    thehanriver/pl-topo_covidnet:         ARGS;
-				 --parInst=@prev_id;
+    jonocameron/pl-covidnet:    ARGS;
+				                --savToDir=@prev_id;
                                 --imagefile=sample.png;
                                 --title=COVIDNET;
                                 --previous_id=@prev_id"
@@ -40,7 +40,7 @@ declare -a a_WORKFLOWSPEC=(
                                 --previous_id=@prev_id"
                                 
     "4:5*_n:l1|
-    thehanriver/pl-tpdf:    ARGS;
+    jonocameron/pl-pdfgeneration:        ARGS;
                                 --imagefile=sample.png;
                                 --patientId=@patientID;
                                 --title=report;
@@ -522,7 +522,7 @@ title -d 1 "Building and Scheduling workflow..."
                     "a_WORKFLOWSPEC[@]"
 
         plugin_run  ":2" "a_WORKFLOWSPEC[@]" "$CUBE" ID2 $sleepAfterPluginRun \
-                    "@prev_id=$ID1;@parInst=$ID1" && id_check $ID2
+                    "@prev_id=$ID1;@savToDir=$ID1" && id_check $ID2
         digraph_add "GRAPHVIZBODY" "GRAPHVIZBODYARGS" ":1;$ID1" ":2;$ID2" \
                     "a_WORKFLOWSPEC[@]"
 
